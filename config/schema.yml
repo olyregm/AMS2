@@ -1,32 +1,23 @@
 # config/schema.yml
 propel:
-  teilnehmer:
+  ###############################################
+  # Konstante Tabellen (fuer alle Regatten gleich)
+  ###############################################
+  nation:
     id:                 ~
-    name:               {type: varchar(255), required: true}
-    vorname:            {type: varchar(255), required: true}
-    jahrgang:           {type: integer}
-    geschlecht:         {type: varchar(1)}
-    titel:              {type: varchar(20)}
-    startberechtigt:    {type: varchar(1)} 
-    nveroeff:           {type: boolean, required: true, default: 0 }
-    drvid:              {type: varchar(20)}
-    regatta_id:         {type: integer foreignTable: regatta, foreignReference: id, required: true }
-    verein_id           {type: integer foreignTable: verein, foreignReference: id, required: true}
-    created_at:         ~
-    updated_at:         ~
-    # Wichtig: wer hat modifiziert - eventuell sfGuard
+    fisaCode:           {type: varchar(3)}
+    nameDe:             {type: varchar(255), required: true}
+    nameEn:             {type: varchar(255), required: true}
+    meldegeldfaktor:    {type: double, required: true, default: 1.0}
     
-  verein:
+  bezahlmodus:
     id:                 ~
-    name:               {type: varchar(255), required: true, index: unique}
-    ort:                {type: longvarchar}
-    kurzname:           {type: varchar(255), required: true, index: unique}
-    lettern:            {type: varchar(10)} 
-    nation:             {type: integer foreignTable: nation, foreignReference: id, required: true}
-    regatta_id:         {type: integer foreignTable: regatta, foreignReference: id, required: true}
-    created_at:         ~
-    updated_at:         ~
-    
+    nameKurz:           {type: varchar(255), required: true}
+    nameLang:           {type: varchar(255), required: true}
+  
+  ###############################################
+  # Vorfeld der Regatta Ausschreibung / Meldung / Setzen
+  ###############################################
   regatta:
     id:                 ~
     nameDe:             {type: varchar(255), required: true}
@@ -39,10 +30,207 @@ propel:
     created_at:         ~
     updated_at:         ~
     
+  rennen: # entspricht einer Zeile in der Ausschreibung (Finale=Vorlauf=...)
+    id:                 ~
+    nummer:             {type: varchar(20), required: true}
+    kuerzel:            {type: varchar(20), required: true}
+    distanz:            {type: varchar(20), required: true}
+    startplaetze:       {type: integer, required: true}
+    meldegeld:          {type: double, required: true}
+    icon:               {type: varchar(255)}  # Filename
+    regatta_id:         {type: integer, foreignTable: regatta, foreignReference: id, required: true}
+    created_at:         ~
+    updated_at:         ~
+  
+  obmann:
+    id:                 ~
+    name:               {type: varchar(255)}
+    vorname:            {type: varchar(255)}
+    strasse:            {type: varchar(255)}
+    plz:                {type: varchar(255)}
+    ort:                {type: varchar(255)}
+    email:              {type: varchar(255)}
+    # user_id:  -> sfGuard
+    regatta_id:         {type: integer, foreignTable: regatta, foreignReference: id, required: true}
+    created_at:         ~
+    updated_at:         ~
+    
+    
+  
+  teilnehmer:
+    id:                 ~
+    name:               {type: varchar(255), required: true}
+    vorname:            {type: varchar(255), required: true}
+    jahrgang:           {type: integer}
+    geschlecht:         {type: varchar(1)}
+    titel:              {type: varchar(20)}
+    startberechtigt:    {type: varchar(1)} 
+    nveroeff:           {type: boolean, required: true, default: 0 }
+    drvid:              {type: varchar(20), index: unique}
+    verein_id:           {type: integer, foreignTable: verein, foreignReference: id, required: true}
+    regatta_id:         {type: integer, foreignTable: regatta, foreignReference: id, required: true }
+    created_at:         ~
+    updated_at:         ~
+    # Wichtig: wer hat modifiziert - eventuell sfGuard
+    
+  verein:
+    id:                 ~
+    name:               {type: varchar(255), required: true, index: unique}
+    ort:                {type: longvarchar}
+    kurzname:           {type: varchar(255), required: true, index: unique}
+    lettern:            {type: varchar(10)} 
+    nation:             {type: integer, foreignTable: nation, foreignReference: id, required: true}
+    regatta_id:         {type: integer, foreignTable: regatta, foreignReference: id, required: true}
+    created_at:         ~
+    updated_at:         ~
+    
   boot:
     id:                 ~
-    obmann:             {type: integer, foreignTable: obmann, foreignReference: id, required: true }
-    bootn:              {type: integer} # Boot 1 oder 2 oder 32
+    obmann_id:          {type: integer, foreignTable: obmann, foreignReference: id, required: true }
+    bootn:              {type: integer} # Boot 1 oder 2 oder 32 ;-)
     idBootRennen:       {type: integer} # Boot im Finale = Boot im Vorlauf
-    lauf_id:            {type: integer foreignTable: lauf, foreignReference: id}
+    lauf_id:            {type: integer, foreignTable: lauf, foreignReference: id}
+    bahn:               {type: integer} 
+    gemeldet:           {type: timestamp} # früher OK (Onlinemeldung)
+    alternativmeldung:  {type: longvarchar}
+    bezahlt:            {type: timestamp}
+    storniert:          {type: timestamp}
+    abgemeldet:         {type: timestamp}
+    nachgemeldet:       {type: timestamp}
+    zusatzgewicht:      {type: double}
+    verwarnt:           {type: timestamp}
+    verwarntKommentar:  {type: longvarchar}
+    ausgeschl:          {type: timestamp}
+    ausgeschlKommentar: {type: longvarchar}
+    didNotStart:        {type: timestamp}
+    didNotFinish:       {type: timestamp}
+    Kommentar:          {type: longvarchar}
+    sessoinid:          {type: integer}
+    regatta_id:         {type: integer, foreignTable: regatta, foreignReference: id, required: true}
+    created_at:         ~
+    updated_at:         ~
     
+  bootTeilnehmer:  # n:m Beziehung
+    bootRennen_id:      {type: integer, foreignTable: boot,       foreignReference: id, primaryKey: true, onDelete: cascade, required: true}
+    teilnehmer_id:      {type: integer, foreignTable: teilnehmer, foreignReference: id, primaryKey: true, onDelete: cascade, required: true}
+    sitzplatz:          {type: integer}
+    verwogen:           {type: timestamp}
+    gewicht:            {type: double}
+    umgemeldet:         {type: timestamp}
+    regatta_id:         {type: integer, foreignTable: regatta, foreignReference: id, required: true}
+    created_at:         ~
+    updated_at:         ~
+  
+  ###############################################
+  # Kasse
+  ###############################################
+  rechnung:
+    id:                 ~
+    obmann_id:          {type: integer, foreignTable: obmann, foreignReference: id, required: true}
+    adresskopf:         {type: longvarchar}
+    gebucht:            {type: timestamp}
+    bezahlmodus_id:     {type: integer, foreignTable: bezahlmodus, foreignReference: id, required: true}
+    storniert:          {type: timestamp}
+    regatta_id:         {type: integer, foreignTable: regatta, foreignReference: id, required: true}
+    created_at:         ~
+    updated_at:         ~
+    
+  
+  rePosten: # Zwitterding: 1. Fester Posten auf einer Rechnung, 2. "irgendwas unbezahltes" - kann "von Hand zB Obmann oder Verein oder Boot zugeordnet werden
+    id:                 ~
+    rechnung_id:        {type: integer, foreignTable: rechnung, foreignReference: id}
+    boot_id:            {type: integer, foreignTable: boot, foreignReference: id}
+    essensbuchung_id:   {type: integer, foreignTable: essensbuchung, foreignReference: id}
+    textsonstiges:      {type: varchar(255)}
+    betragsonstiges:    {type: varchar(255)}
+    regatta_id:         {type: integer, foreignTable: regatta, foreignReference: id, required: true}
+    created_at:         ~
+    updated_at:         ~
+  
+  essensbuchung:
+    id:                 ~
+    obmann_id:          {type: integer, foreignTable: obmann, foreignReference: id, required: true}
+    essen_id:           {type: integer, foreignTable: essen, foreignReference: id, required: true}
+    anzahl:             {type: integer, required: true}
+    regatta_id:         {type: integer, foreignTable: regatta, foreignReference: id, required: true}
+    created_at:         ~
+    updated_at:         ~
+    
+  essen:
+    id:                 ~
+    bezeichnungDe:      {type: varchar(255)} # Mittagessen Freitag, ...
+    bezeichnungEn:      {type: varchar(255)} # 
+    preis:              {type: double}
+    regatta_id:         {type: integer, foreignTable: regatta, foreignReference: id, required: true}
+    created_at:         ~
+    updated_at:         ~
+    
+  
+  ###############################################
+  # Regattaablauf
+  ###############################################
+  startzeit: # != lauf, hatten wir uns damals so ueberlegt, weil z.B. bei Master mehrere laeufe gleichzeitig starten.
+    id:                 ~
+    startzeit:          {type: timestamp}
+    schiedsrichter_id:  {type: integer, foreignTable: schiedsrichter, foreignReference: id}
+    ausgerichtet:       {type: timestamp}
+    gestartet:          {type: timestamp}
+    durch:              {type: timestamp}
+    fotofinish:         {type: boolean}
+    freigegeben:        {type: timestamp}
+    regatta_id:         {type: integer, foreignTable: regatta, foreignReference: id, required: true}
+    created_at:         ~
+    updated_at:         ~
+  
+  lauf:
+    id:                 ~
+    startzeit_id:       {type: integer, foreignTable: startzeit, foreignReference: id}
+    rennen_id:          {type: integer, foreignTable: rennen, foreignReference: id}
+    gattung:            {type: varchar(255), required: true} # Fin A, VL, ...
+    nummer:             {type: integer, required: true, default: 1}
+    qualirules:         {type: varchar(255)}
+    qualirulesVolltext: {type: longvarchar}
+    regatta_id:         {type: integer, foreignTable: regatta, foreignReference: id, required: true}
+    created_at:         ~
+    updated_at:         ~
+    
+  zeit:
+    id:                 ~
+    boot_id:            {type: integer, foreignTable: boot, foreignReference: id, required: true}
+    zeit:               {type: integer, required: true} # int hat 9 "volle" Stellen: reicht für h:mm:ss,dht ohne Trennsymbole: sind nämlich 8
+    zwischenzeit_id:    {type: integer, foreignTable: zwischenzeit, foreignReference: id, required: true}
+    regatta_id:         {type: integer, foreignTable: regatta, foreignReference: id, required: true}
+    created_at:         ~
+    updated_at:         ~
+    
+  zwischenzeit:
+    id:                 ~
+    position:           {type: varchar(255), required: true} # 500, 1000, 1500, ...
+    regatta_id:         {type: integer, foreignTable: regatta, foreignReference: id, required: true}
+    created_at:         ~
+    updated_at:         ~
+    
+  schiedsrichter:
+    id:                 ~
+    name:               {type: varchar(255), required: true}
+    vorname:            {type: varchar(255), required: true}
+    nummerInternational: {type: varchar(20)}
+    nummerDeutsch:      {type: varchar(20)}
+    regatta_id:         {type: integer, foreignTable: regatta, foreignReference: id, required: true}
+    created_at:         ~
+    updated_at:         ~
+    
+  log:
+    id:                 ~
+    created_at:         ~
+    ip:                 {type: varchar(255)}
+    user_id:            {type: integer, required: true} # macht evtl. sfGuard
+    aktion:             {type: varchar(255)}
+    boot_id:            {type: integer, foreignTable: boot, foreignReference: id}
+    teilnehmer_id:      {type: integer, foreignTable: teilnehmer, foreignReference: id}
+    verein_id:          {type: integer, foreignTable: verein, foreignReference: id}
+    rennen_id:          {type: integer, foreignTable: rennen, foreignReference: id}
+    rechnung_id:        {type: integer, foreignTable: rechnung, foreignReference: id}
+    lauf_id:            {type: integer, foreignTable: lauf, foreignReference: id}
+    startzeit_id:       {type: integer, foreignTable: startzeit, foreignReference: id}
+    regatta_id:         {type: integer, foreignTable: regatta, foreignReference: id, required: true}
