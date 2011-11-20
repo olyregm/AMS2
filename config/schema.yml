@@ -1,0 +1,48 @@
+# config/schema.yml
+propel:
+  teilnehmer:
+    id:                 ~
+    name:               {type: varchar(255), required: true}
+    vorname:            {type: varchar(255), required: true}
+    jahrgang:           {type: integer}
+    geschlecht:         {type: varchar(1)}
+    titel:              {type: varchar(20)}
+    startberechtigt:    {type: varchar(1)} 
+    nveroeff:           {type: boolean, required: true, default: 0 }
+    drvid:              {type: varchar(20)}
+    regatta_id:         {type: integer foreignTable: regatta, foreignReference: id, required: true }
+    verein_id           {type: integer foreignTable: verein, foreignReference: id, required: true}
+    created_at:         ~
+    updated_at:         ~
+    # Wichtig: wer hat modifiziert - eventuell sfGuard
+    
+  verein:
+    id:                 ~
+    name:               {type: varchar(255), required: true, index: unique}
+    ort:                {type: longvarchar}
+    kurzname:           {type: varchar(255), required: true, index: unique}
+    lettern:            {type: varchar(10)} 
+    nation:             {type: integer foreignTable: nation, foreignReference: id, required: true}
+    regatta_id:         {type: integer foreignTable: regatta, foreignReference: id, required: true}
+    created_at:         ~
+    updated_at:         ~
+    
+  regatta:
+    id:                 ~
+    nameDe:             {type: varchar(255), required: true}
+    nameEn:             {type: varchar(255), required: true}
+    ortDe:              {type: varchar(255), required: true}
+    ortEn:              {type: varchar(255), required: true}
+    datum:              {type: date} 
+    regattaTage:        {type: integer, required: true, default:2}
+    ausschreibungstext: {type: longvarchar}
+    created_at:         ~
+    updated_at:         ~
+    
+  boot:
+    id:                 ~
+    obmann:             {type: integer, foreignTable: obmann, foreignReference: id, required: true }
+    bootn:              {type: integer} # Boot 1 oder 2 oder 32
+    idBootRennen:       {type: integer} # Boot im Finale = Boot im Vorlauf
+    lauf_id:            {type: integer foreignTable: lauf, foreignReference: id}
+    
