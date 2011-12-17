@@ -18,4 +18,9 @@
  */
 class Schiedsrichter extends BaseSchiedsrichter {
 
+	public function __toString()  
+		{    
+		return $this->getName();  
+		}
+
 } // Schiedsrichter
