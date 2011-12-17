@@ -18,4 +18,10 @@
  */
 class Obmann extends BaseObmann {
 
+ public function __toString()
+  {
+    return $this->getName();
+  }
+
+
 } // Obmann
