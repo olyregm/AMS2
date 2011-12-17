@@ -17,5 +17,8 @@
  * @package    lib.model
  */
 class Boot extends BaseBoot {
-
+	public function __toString()
+	{
+	  return $this->getName();
+	}
 } // Boot
