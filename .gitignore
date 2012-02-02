@@ -1,7 +1,6 @@
 cache/*
 log/*
 web/uploads/*
-config/databases.yml
 data/sql/*
 lib/filter/doctrine/base/Base*
 lib/filter/doctrine/*Plugin/base/Base*

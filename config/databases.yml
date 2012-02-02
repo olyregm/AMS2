@@ -1,0 +1,7 @@
+all:
+  propel:
+    class: sfPropelDatabase
+    param:
+      dsn: 'mysql:host=localhost;dbname=ams2'
+      username: ams2
+      password: olyregm2011
